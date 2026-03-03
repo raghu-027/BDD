@@ -16,15 +16,20 @@ public class SauceDemoSteps {
     @Given("the user launches the SauceDemo website")
     public void launchWebsite() {
 
-        // Disable Chrome password popup
         ChromeOptions options = new ChromeOptions();
 
         Map<String, Object> prefs = new HashMap<>();
         prefs.put("credentials_enable_service", false);
         prefs.put("profile.password_manager_enabled", false);
+        prefs.put("profile.password_manager_leak_detection", false);
 
         options.setExperimentalOption("prefs", prefs);
+
+        options.addArguments("--disable-save-password-bubble");
         options.addArguments("--disable-notifications");
+        options.addArguments("--incognito");
+        options.addArguments("--disable-infobars");
+        options.addArguments("--disable-features=PasswordLeakDetection");
 
         driver = new ChromeDriver(options);
 
@@ -59,6 +64,7 @@ public class SauceDemoSteps {
 
     @And("the user removes {string} from the cart")
     public void removeItem(String itemName) {
+
         String removeXpath = "//div[text()='" + itemName + "']/ancestor::div[@class='cart_item']//button";
         driver.findElement(By.xpath(removeXpath)).click();
     }
@@ -97,8 +103,10 @@ public class SauceDemoSteps {
 
     @Then("an {string} confirmation message should be displayed")
     public void verifyConfirmation(String expectedMsg) {
+
         String actualMsg = driver.findElement(By.className("complete-header")).getText();
         Assert.assertEquals(expectedMsg, actualMsg);
+
         driver.quit();
     }
 }
